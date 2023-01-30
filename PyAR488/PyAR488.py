@@ -217,7 +217,7 @@ class AR488:
             if self._mode != new_mode:
                 raise Exception('unable to set correct operation mode')
 
-    def read(self, terminator: str = None, decode=None, until_eoi=False):
+    def read(self, terminator: str = None, decode:bool=True, until_eoi:bool=False):
         """This command can be used to read data from the currently addressed instrument. Data is read
         until:
          the EOI signal is detected
@@ -229,7 +229,7 @@ class AR488:
         if until_eoi:
             if not self._eoi:
                 raise Exception('EOI function not enabled')
-            return self.query(f'++read eoi', decode=(decode if decode is not None else None))
+            return self.query(f'++read eoi', decode=decode)
         else:
             return self.query(f'++read{" " + terminator if terminator is not None else ""}',
                               decode=(decode if decode is not None else None))
