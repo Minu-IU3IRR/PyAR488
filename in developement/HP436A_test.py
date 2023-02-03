@@ -30,7 +30,7 @@ class HP436A:
         self.status = None
         self.range = None
         self.mode = None
-        self.cal_factor_enabled = True
+        self._cal_factor_enabled = True
 
     # internals
 
@@ -80,7 +80,7 @@ class HP436A:
             raise self.AutoZeroOverRange
 
         self.range = self._range[data[1]]
-        self.mode = self._mode[data[2]]
+        self.mode = list(self._mode.keys())[list(self._mode.values()).index(data[2])]
 
         reading = float(data[3:8])
         if data[3] != ' ':  # white space = positive, else negative
@@ -105,10 +105,10 @@ class HP436A:
         """enable or disable front panel cal factor knob"""
         if enable:
             self._write('-')
-            self.cal_factor_enabled = True
+            self._cal_factor_enabled = True
         else:
             self._write('+')
-            self.cal_factor_enabled = False
+            self._cal_factor_enabled = False
 
     def set_measurement_rate(self, rate: str):
         """set the measurement rate, avaiable:\n
@@ -132,18 +132,15 @@ class HP436A:
 
 meter = HP436A(interface, 13)
 
-
-meter.cal_factor_enabled(False)
-
 while True:
     try:
-        print(meter.read(all_data=True), end='\r')
+        print(meter.read(all_data=True))
     except meter.OverRange:
-        print('WARNING : power too high!', end='\r')
+        print('WARNING : power too high!')
     except meter.UnderRange:
-        print('under range', end='\r')
+        print('under range')
     except meter.AutoZeroInProgress:
-        print('meter is performing autozero, please wait', end='\r')
+        print('meter is performing autozero, please wait')
     except meter.AutoZeroOverRange:
-        print('WARNING : error performing probe autozero', end='\r')
+        print('WARNING : error performing probe autozero')
     sleep(0.5)
