@@ -1,8 +1,3 @@
-from time import sleep
-from PyAR488.PyAR488 import AR488
-interface = AR488('COM5')
-
-
 class HP436A:
     from PyAR488.PyAR488 import AR488
 
@@ -128,19 +123,3 @@ class HP436A:
         else:
             # 'trigger_immediate' : make une measurement and output data as fast as possible with no settling time, HOLD until next trigger
             self._write(self._measurement_rate['trigger_immediate'])
-
-
-meter = HP436A(interface, 13)
-
-while True:
-    try:
-        print(meter.read(all_data=True))
-    except meter.OverRange:
-        print('WARNING : power too high!')
-    except meter.UnderRange:
-        print('under range')
-    except meter.AutoZeroInProgress:
-        print('meter is performing autozero, please wait')
-    except meter.AutoZeroOverRange:
-        print('WARNING : error performing probe autozero')
-    sleep(0.5)
