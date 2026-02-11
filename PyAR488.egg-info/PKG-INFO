@@ -1,53 +1,122 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: PyAR488
-Version: 1.6
+Version: 1.7.1
 Summary: module to interface AR488 boards
 Home-page: https://github.com/Minu-IU3IRR/PyAR488
 Author: Manuel Minutello
 License: MIT
+Project-URL: Bug Tracker, https://github.com/Minu-IU3IRR/PyAR488/issues
+Project-URL: Source, https://github.com/Minu-IU3IRR/PyAR488
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: pyserial
+Dynamic: author
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
 
+# PyAR488
 
-package to interact with AR488 interface boards, adds a bit of abstraction to simplify interactions. also can be passed as an argument to custom classes to semplify instrument contorl in your code like :
+PyAR488 is a Python package to interact with **AR488** GPIB-USB
+interface boards.\
+It provides a thin abstraction layer over the serial interface to
+simplify communication with GPIB instruments.
 
-    from PyAR488.PyAR488 import AR488
-    
-    class HP3468A:
-        def __init__(gpib_addrs:int, interface:AR488):
-            self.address = gpib_addrs
-            self.interface = interface
+------------------------------------------------------------------------
 
-        def read_measurement(self):
-            self.interface.address(self.address)
-            return self.interface.read()
+## Installation
 
+``` bash
+pip install PyAR488
+```
 
-    my_awesome_interface = AR488('COM5')  # open the interface
-    my_swesome_meter = HP3468A(22 , my_awesome_interface)  # create the interument object
+## Requirements
 
-    reading = my_awesome_meter.read_measurement()  #read measurement
-    print(reading)
+-   Python 3.6+
+-   `pyserial` (installed automatically as a dependency)
 
+------------------------------------------------------------------------
 
-NOTE : for custom instrument classes remember that the interface must be on the same address as the instrument to comunicate, maybe implement a custom function like:
+## Quickstart
 
-    class MyAwesomeInstrument:
-        def __init__(self, interface:AR488, address:int):  #define instruemtn with interface and GPIB address
-            self.interface = interface
-            self.address = address
-    
-        def _read(messsage:str):  # internal function that make sure the address has not been changed before the operation
-            self.interface.address(self.address):
-            return self.interface.read(message)
-    
-This way you are shoure that the interface is always on the right address and the serial command to change is sent only if it is currently configured diferently (so no useless traffic on usb). all is handeled automaticaly in the PyAR488 module.
+``` python
+from PyAR488.PyAR488 import AR488
 
-In case of trouble... enable the debung on object declaration to see printed each and every command sent to the interface and your instruments! 
+# Open the interface (replace COM5 with your serial port)
+interface = AR488("COM5")
 
-just use:
+# Set GPIB address and read
+interface.address(22)
+print(interface.read())
+```
 
-    from PyAR488.PyAR488 import AR488
-    my_interface = AR488('COM5', debug = True)
+------------------------------------------------------------------------
 
-if you face any problen make sure to send an issue on GitHub or make a pull request with the fix!
-GitHub repo: https://github.com/Minu-IU3IRR/PyAR488
+## Using PyAR488 in Custom Instrument Classes
+
+A recommended pattern is to inject the AR488 interface into your
+instrument classes:
+
+``` python
+from PyAR488.PyAR488 import AR488
+
+class HP3468A:
+    def __init__(self, gpib_address: int, interface: AR488):
+        self.address = gpib_address
+        self.interface = interface
+
+    def read_measurement(self):
+        self.interface.address(self.address)
+        return self.interface.read()
+
+interface = AR488("COM5")
+meter = HP3468A(22, interface)
+
+reading = meter.read_measurement()
+print(reading)
+```
+
+------------------------------------------------------------------------
+
+## Safer Pattern: Enforcing Address Before Each Operation
+
+If multiple instruments share the same interface, ensure the GPIB
+address is set before every read/write:
+
+``` python
+class MyInstrument:
+    def __init__(self, interface: AR488, address: int):
+        self.interface = interface
+        self.address = address
+
+    def read(self, message: str = ""):
+        self.interface.address(self.address)
+        return self.interface.read(message)
+```
+
+This prevents accidental cross-talk when the interface address is
+changed elsewhere in your code.
+
+------------------------------------------------------------------------
+
+## Debugging
+
+Enable debug mode to print communication traffic:
+
+``` python
+interface = AR488("COM5", debug=True)
+```
+
+------------------------------------------------------------------------
+
+## Support
+
+-   Source code: https://github.com/Minu-IU3IRR/PyAR488
+-   Issue tracker: https://github.com/Minu-IU3IRR/PyAR488/issues

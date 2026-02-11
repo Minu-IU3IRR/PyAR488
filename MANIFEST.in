@@ -1,0 +1,4 @@
+prune .git
+prune __pycache__
+prune _internal_tools
+global-exclude *.py[cod]

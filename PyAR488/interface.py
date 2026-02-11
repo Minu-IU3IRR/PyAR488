@@ -3,6 +3,11 @@ class AR488:
     """Class to easily comunicate with an AR488 USB-GPIB adapter.
     For details see: https://github.com/Twilight-Logic/AR488
     -> implemented by Minu
+
+    V1.7 patch:
+        - bus_write now sends the correct formatted strings in all cases
+        - fixed bug in read_srq (was returning always true)
+        - deleting the instance now is guarded against failure to open
     """
 
     import serial
@@ -46,7 +51,10 @@ class AR488:
         self._idn = self.idn()  
 
     def __del__(self):
-        self._ser.close()
+        try:
+            self._ser.close()
+        except Exception:
+            pass
 
     def close(self):
         self.__del__()
@@ -58,9 +66,10 @@ class AR488:
         self._ser.close()
 
     # bus commands
-    def bus_write(self, message:str):
+    def bus_write(self, message):
         """write a message on bus"""
-        self._ser.write("{}\n\r".format(message).encode("ASCII"))
+        message += '\n\r'
+        self._ser.write(u"".join(message).encode('ASCII'))
         if self._debug_messages:  # debug
             print(f'AR488 -> write :{message}')
 
@@ -277,7 +286,8 @@ class AR488:
     def read_srq(self):
         """This command returns the present status of the SRQ signal line. It returns False if SRQ is not asserted
         and True if SRQ is asserted"""
-        return bool(self.query('++srq'))
+        val = self.query('++srq')
+        return val.lower() in ('1', 'true')
 
     # todo : ++status
 
@@ -363,7 +373,7 @@ class AR488:
             if self._idn != new_idn:
                 raise Exception('unable to set new idn mode')
 
-    # todo : ++macro, ++ppoll, ++prom, ++ren, ++repeat, ++setvstr, ++srqauto, ton, ++verbose
+    # TODO : ++macro, ++ppoll, ++prom, ++ren, ++repeat, ++setvstr, ++srqauto, ton, ++verbose
 
 # notes:
 # '\r', '\n', and '+' are control characters that must be escaped in binary data
