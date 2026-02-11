@@ -1,11 +1,26 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: PyAR488
-Version: 1.6
+Version: 1.7.3
 Summary: module to interface AR488 boards
 Home-page: https://github.com/Minu-IU3IRR/PyAR488
 Author: Manuel Minutello
 License: MIT
+Project-URL: Bug Tracker, https://github.com/Minu-IU3IRR/PyAR488/issues
+Project-URL: Source, https://github.com/Minu-IU3IRR/PyAR488
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: pyserial
+Dynamic: author
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
 
 
 package to interact with AR488 interface boards, adds a bit of abstraction to simplify interactions. also can be passed as an argument to custom classes to semplify instrument contorl in your code like :
