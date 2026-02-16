@@ -2,12 +2,10 @@
 class AR488:
     """Class to easily comunicate with an AR488 USB-GPIB adapter.
     For details see: https://github.com/Twilight-Logic/AR488
-    -> implemented by Minu
+    -> author: Minu_IU3IRR
 
-    V1.7 patch:
-        - bus_write now sends the correct formatted strings in all cases
-        - fixed bug in read_srq (was returning always true)
-        - deleting the instance now is guarded against failure to open
+    V1.7.2 patch:
+        - fixed bool parsing usign new functions str2bool in EOI and SRQ
     """
 
     import serial
@@ -64,6 +62,11 @@ class AR488:
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         self._ser.close()
+
+    # internal functions
+    @staticmethod
+    def _str2bool(value:str) -> bool:
+        return value.lower() in ('1', 'true')
 
     # bus commands
     def bus_write(self, message):
@@ -129,7 +132,7 @@ class AR488:
         sequence. Some instruments require their command strings to be terminated with an EOI
         signal in order to properly detect the command"""
         if new_eoi is None:
-            return bool(self.query('++eoi'))
+            return self._str2bool(self.query('++eoi'))
         else:
             self.bus_write(f'++eoi {"1" if new_eoi else "0"}')
 
@@ -287,7 +290,7 @@ class AR488:
         """This command returns the present status of the SRQ signal line. It returns False if SRQ is not asserted
         and True if SRQ is asserted"""
         val = self.query('++srq')
-        return val.lower() in ('1', 'true')
+        return self._str2bool(val)
 
     # todo : ++status
 

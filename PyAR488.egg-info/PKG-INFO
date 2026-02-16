@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: PyAR488
-Version: 1.7.1
+Version: 1.7.2
 Summary: module to interface AR488 boards
 Home-page: https://github.com/Minu-IU3IRR/PyAR488
 Author: Manuel Minutello
